@@ -1,9 +1,12 @@
 #include <cstdio>
+#include <stdlib.h>
 #include "raylib.h"
 #include "extras/raygui.h"
 #include "Functions.h"
 #include <iostream>
 #include <filesystem>
+
+
 
 namespace fs = std::filesystem;
 using namespace ConsoleFunctions;
@@ -19,6 +22,7 @@ vector<string> getDir(const string& dir) {
 
 
 int main() {
+    const string projFolder = (string) getenv("USERPROFILE") + "ConsoleX Projects";
 
     // Pre Init
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
@@ -44,7 +48,7 @@ int main() {
         SetWindowTitle("ConsoleX - The Best Console Game Engine | Load Project");
 
         // Mouse Input Settings Shit
-        offset += GetMouseWheelMove() * 3;
+        offset += GetMouseWheelMove() * 5;
         if (offset < 0)
             offset = 0;
         if (offset > 800)

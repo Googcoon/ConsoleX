@@ -26,6 +26,16 @@ namespace COLORS {
 #define CONSOLE_BRIGHTWHITE "F"
     }
 
+namespace WindowTypes {
+   typedef enum CurrentWindow {
+        LOAD_Window,
+        MAIN_Window,
+        GAME_Window,
+        SETTINGS_Window,
+        NONE_Window
+    } CurrentWindow;
+}
+
 
 
 
