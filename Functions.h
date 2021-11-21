@@ -2,14 +2,16 @@
 #include <string>
 #include <utility>
 #include "TYPES.h"
+#include "ansicolor.h"
+#include <processenv.h>
 
 using namespace std;
 using namespace COLORS;
-
 #ifndef FUNCTIONS_H
 //colors
 
 namespace ConsoleFunctions {
+
     string background = CONSOLE_BLACK;
     string text = CONSOLE_WHITE;
 
