@@ -4,5 +4,5 @@ project(ConsoleX)
 set(CMAKE_CXX_STANDARD 23)
 
 add_subdirectory("C:/raylib/raylib" raylib)
-add_executable(ConsoleX main.cpp ErrorHandling.h ansicolor.h color.hpp)
+add_executable(ConsoleX main.cpp ErrorHandling.hpp ansicolor.hpp color.hpp InternalErrorHandling.cpp InternalErrorHandling.hpp TYPES.cpp)
 target_link_libraries(${PROJECT_NAME} raylib)

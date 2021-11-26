@@ -1,8 +1,8 @@
 #include <process.h>
 #include <string>
 #include <utility>
-#include "TYPES.h"
-#include "ansicolor.h"
+#include "TYPES.hpp"
+#include "ansicolor.hpp"
 #include <processenv.h>
 
 using namespace std;
