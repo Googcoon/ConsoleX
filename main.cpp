@@ -46,66 +46,75 @@ int main() {
 
     // Variables Post Init
     vector<string> projFolderContents = GetDir(projFolder);
+    // This loop removes all the files that are not directories in the project folder array
+    for (auto& str : projFolderContents) {
+        str.erase(std::remove(str.begin(), str.end(), '.'), str.end());
+    }
+    try {
+        // Main Window Loop
+        while (!WindowShouldClose()) {
+            // Necessary code for window handling
+            if (IsWindowMaximized() && IsWindowResized())
+                MaximizeWindow();
 
-    // Main Window Loop
-    while (!WindowShouldClose()) {
-        // Necessary code for window handling
-        if (IsWindowMaximized() && IsWindowResized())
-            MaximizeWindow();
-
-        // Non-window Independent Code
-        // Mouse Input Shit
-        offset += GetMouseWheelMove() * 10;
-        if (offset < 0)
-            offset = 0;
-        if (offset > 800)
-            offset = 800;
+            // Non-window Independent Code
+            // Mouse Input Shit
+            offset += GetMouseWheelMove() * 10;
+            if (offset < 0)
+                offset = 0;
+            if (offset > 800)
+                offset = 800;
 
 
-        switch (currentWin) {
-            case WindowTypes::NONE_Window: {
-                SetWindowTitle("ConsoleX - The Best Console Game Engine");
-                break;
-            }
-            case WindowTypes::LOAD_Window: {
-                SetWindowTitle("ConsoleX - The Best Console Game Engine | Load Project");
-
-                // If project directory container doesn't exist create one and if any errors occur it throws it to the error handler
-                if (!DirectoryExists(projFolder.c_str())) {
-                    bool dirError = create_directory(projFolder.c_str());
-                    if (!dirError) ThrowInternalError("Could not create project directory \"" + projFolder + "\"");
+            switch (currentWin) {
+                case WindowTypes::NONE_Window: {
+                    SetWindowTitle("ConsoleX - The Best Console Game Engine");
+                    break;
                 }
+                case WindowTypes::LOAD_Window: {
+                    SetWindowTitle("ConsoleX - The Best Console Game Engine | Load Project");
 
-                // TODO make the ui scrollable on the right side of the screen and shows the directories in the projects dir
-                // GUI
-                BeginDrawing();
+                    // If project directory container doesn't exist create one and if any errors occur it throws it to the error handler
+                    if (!DirectoryExists(projFolder.c_str())) {
+                        bool dirError = create_directory(projFolder.c_str());
+                        if (!dirError) ThrowInternalError("Could not create project directory \"" + projFolder + "\"");
+                    }
 
-                ClearBackground(RAYWHITE);
+                    // TODO make the ui scrollable on the right side of the screen and shows the directories in the projects dir
+                    // GUI
+                    BeginDrawing();
 
-                Rectangle clipRect = {1000, 0, GetMonitorWidth(GetCurrentMonitor()) * 20.0f, 1000000};
-                DrawRectangleRec(clipRect, DARKGRAY);
+                    ClearBackground(RAYWHITE);
 
-                BeginScissorMode(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
+                    Rectangle clipRect = {1000, 0, GetMonitorWidth(GetCurrentMonitor()) * 20.0f,
+                                          GetMonitorHeight(GetCurrentMonitor()) * 20.0f};
+                    DrawRectangleRec(clipRect, DARKGRAY);
 
-                for (int i = 0; i < 20000; i += 20) {
-                    DrawRectangle(clipRect.x + 2, clipRect.y - offset + i, 300 + (i % 30) * 20, 100,
-                                  i % 40 == 0 ? RED : GREEN);
-                    DrawText(("" + to_string(i)).c_str(), clipRect.x + 2, clipRect.y - offset + i, 20, LIGHTGRAY);
+                    BeginScissorMode(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
+
+                    for (int i = 0; i <= projFolderContents.size() * 20; i += 20) {
+                        DrawRectangle(clipRect.x + 2, clipRect.y - offset + i, 300 + (i % 30) * 20, 100,
+                                      i % 40 == 0 ? RED : GREEN);
+                        DrawText(projFolderContents.at((i / 20) - 1).c_str(), clipRect.x + 2, clipRect.y - offset + i,
+                                 20, LIGHTGRAY);
+                    }
+
+                    EndScissorMode();
+                    EndDrawing();
+                    break;
                 }
-
-                EndScissorMode();
-                EndDrawing();
-                break;
-            }
-            case WindowTypes::MAIN_Window: {
-                SetWindowTitle("ConsoleX - The Best Console Game Engine | Editor Window");
-                break;
-            }
-            case WindowTypes::SETTINGS_Window: {
-                SetWindowTitle("ConsoleX - The Best Console Game Engine | Settings Window");
-                break;
+                case WindowTypes::MAIN_Window: {
+                    SetWindowTitle("ConsoleX - The Best Console Game Engine | Editor Window");
+                    break;
+                }
+                case WindowTypes::SETTINGS_Window: {
+                    SetWindowTitle("ConsoleX - The Best Console Game Engine | Settings Window");
+                    break;
+                }
             }
         }
+    } catch (const std::exception& e) {
+        printf(e.what());
     }
     CloseWindow();
 
