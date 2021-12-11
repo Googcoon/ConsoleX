@@ -31,7 +31,7 @@ namespace COLORS {
     }
 
 namespace WindowTypes {
-    typedef enum CurrentWindow {
+    typedef enum {
         LOAD_Window,
         MAIN_Window,
         GAME_Window,

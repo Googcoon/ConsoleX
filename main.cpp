@@ -6,11 +6,19 @@
 #include "Functions.hpp"
 #include <iostream>
 #include <filesystem>
-
-
-
+#include "pugixml.hpp"
+using namespace std;
 using namespace std::filesystem;
 using namespace ConsoleFunctions;
+using namespace pugi;
+
+// Declare variables
+xml_document doc;
+xml_parse_result result;
+xml_node projectRoot = doc.child("Project");
+const string projFolder = (string) getenv("USERPROFILE") + "\\ConsoleX Projects";
+int currentWin = WindowTypes::LOAD_Window;
+string loadedProject;
 
 vector<string> GetDir(const string& dir) {
     vector<string> files;
@@ -21,14 +29,25 @@ vector<string> GetDir(const string& dir) {
         files.emplace_back(paths[i]);
     }
     ClearDirectoryFiles();
+    // remove the first 2 elements of files vector
+    files.erase(files.begin());
+    files.erase(files.begin());
     return files;
  }
 
-int main() {
-    // Declare variables
-    const string projFolder = (string) getenv("USERPROFILE") + "\\ConsoleX Projects";
-    int currentWin = WindowTypes::LOAD_Window;
+void OpenProject(string dir) {
+    currentWin = WindowTypes::MAIN_Window;
+    loadedProject = "";
+    result = doc.load_file((dir + "project.xml").c_str(),parse_default | parse_declaration);
+}
 
+    bool RectangleClickDetection(Rectangle rect) {
+        if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), rect))
+            return true;
+        return false;
+    }
+int main() {
+    cout << projectRoot.child("ProjectName").child_value()<< endl;
     // Pre Init
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
@@ -36,20 +55,30 @@ int main() {
 
     // Init
     InitWindow(0, 0, "ConsoleX - The Best Console Game Engine");
+    SetWindowIcon(LoadImage("icon.png"));
 
     // Post Init
     SetExitKey(0);
     MaximizeWindow();
+    int ScreenWidth = GetMonitorWidth(GetCurrentMonitor());
+    int ScreenHeight = GetMonitorHeight(GetCurrentMonitor());
 
     // GUI Post Init
     float offset = 0;
 
     // Variables Post Init
-    vector<string> projFolderContents = GetDir(projFolder);
-    // This loop removes all the files that are not directories in the project folder array
-    for (auto& str : projFolderContents) {
-        str.erase(std::remove(str.begin(), str.end(), '.'), str.end());
+   vector<string> projFolderContents =  GetDir(projFolder);
+
+   // This loop removes all the files that are not directories in the project folder array
+    for (auto str : projFolderContents) {
+        if (str.find('.') != string::npos)
+            projFolderContents.erase(find(projFolderContents.begin(), projFolderContents.end(), str));
+
     }
+
+    int projects = projFolderContents.size();
+    printf(("The number of projects are: " + to_string(projects)).c_str());
+
     try {
         // Main Window Loop
         while (!WindowShouldClose()) {
@@ -65,12 +94,13 @@ int main() {
             if (offset > 800)
                 offset = 800;
 
-
             switch (currentWin) {
+                // Basic window
                 case WindowTypes::NONE_Window: {
                     SetWindowTitle("ConsoleX - The Best Console Game Engine");
                     break;
                 }
+                // Load Projects Window
                 case WindowTypes::LOAD_Window: {
                     SetWindowTitle("ConsoleX - The Best Console Game Engine | Load Project");
 
@@ -86,25 +116,35 @@ int main() {
 
                     ClearBackground(RAYWHITE);
 
-                    Rectangle clipRect = {1000, 0, GetMonitorWidth(GetCurrentMonitor()) * 20.0f,
-                                          GetMonitorHeight(GetCurrentMonitor()) * 20.0f};
-                    DrawRectangleRec(clipRect, DARKGRAY);
+                    // Essentially the actual scroll box for the projects display and drawing it on the screen
+                    Rectangle clipRect = {ScreenHeight * .8f,  ScreenWidth / 6.0f, ScreenWidth * 20.0f,ScreenHeight * 20.0f};
+                    DrawRectangleRec(clipRect, RAYWHITE);
 
                     BeginScissorMode(clipRect.x, clipRect.y, clipRect.width, clipRect.height);
+                    int i = 0;
+                    for (const auto& project : projFolderContents) {
+                        Rectangle currentProj = {clipRect.x + 2, clipRect.y - offset + i, 1000, 100};
+                        // Projects display content box
+                        DrawRectangleRec(currentProj,WHITE);
+                        // Projects display outlines
+                        DrawRectangleLines(clipRect.x + 2, clipRect.y - offset + i, 1000, 100,GRAY);
+                        // Draw Project Name
+                        DrawText(project.c_str(), clipRect.x + 2, clipRect.y - offset + i,20,BLACK);
+                        if(RectangleClickDetection(currentProj))
+                            OpenProject(projFolder + "\\" + project);
 
-                    for (int i = 0; i <= projFolderContents.size() * 20; i += 20) {
-                        DrawRectangle(clipRect.x + 2, clipRect.y - offset + i, 300 + (i % 30) * 20, 100,
-                                      i % 40 == 0 ? RED : GREEN);
-                        DrawText(projFolderContents.at((i / 20) - 1).c_str(), clipRect.x + 2, clipRect.y - offset + i,
-                                 20, LIGHTGRAY);
+                        // Increment Position variable
+                        i += 100;
                     }
+
 
                     EndScissorMode();
                     EndDrawing();
                     break;
                 }
+                // Game Engine Window
                 case WindowTypes::MAIN_Window: {
-                    SetWindowTitle("ConsoleX - The Best Console Game Engine | Editor Window");
+                    SetWindowTitle(("ConsoleX - The Best Console Game Engine | "  + loadedProject).c_str());
                     break;
                 }
                 case WindowTypes::SETTINGS_Window: {
@@ -114,9 +154,8 @@ int main() {
             }
         }
     } catch (const std::exception& e) {
-        printf(e.what());
+        ThrowInternalError(e.what());
     }
     CloseWindow();
-
     return 0;
 }
