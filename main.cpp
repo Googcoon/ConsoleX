@@ -12,7 +12,6 @@ using namespace std::filesystem;
 using namespace ConsoleFunctions;
 using namespace pugi;
 using namespace EngineTypes;
-
 // Declare variables
 xml_document doc;
 xml_parse_result result;
@@ -50,11 +49,12 @@ void OpenProject(string dir) {
     loadedProject += " v" + version;
 }
 
-    bool RectangleClickDetection(Rectangle rect) {
+ bool RectangleClickDetection(Rectangle rect) {
         if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && CheckCollisionPointRec(GetMousePosition(), rect))
             return true;
         return false;
-    }
+ }
+
 int main() {
     // Pre Init
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
