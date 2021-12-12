@@ -40,4 +40,15 @@ namespace WindowTypes {
     } CurrentWindow;
 }
 
+namespace EngineTypes {
+    typedef struct {
+       int major;
+       int minor;
+       int patch;
+    } Version;
+
+    extern string VersionToString(Version version);
+    extern Version StringToVersion(const std::string& version);
+}
+
 #endif

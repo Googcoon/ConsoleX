@@ -1,4 +1,4 @@
-
+#include <string>
 #ifndef ERRORHANDLING_H
 
 namespace Errors::ColorErrors {
@@ -15,7 +15,7 @@ namespace Errors::ColorErrors {
 
 
 
-extern void ThrowError(string error) {
+extern void ThrowError(std::string error) {
     /* do something here that will manage the ui and show a error in the code because it will have to be compiled
     probably update the ui in raylib with some text written in a certain font and color
      */

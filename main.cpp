@@ -11,11 +11,13 @@ using namespace std;
 using namespace std::filesystem;
 using namespace ConsoleFunctions;
 using namespace pugi;
+using namespace EngineTypes;
 
 // Declare variables
 xml_document doc;
 xml_parse_result result;
 xml_node projectRoot = doc.child("Project");
+Version projVersion;
 const string projFolder = (string) getenv("USERPROFILE") + "\\ConsoleX Projects";
 int currentWin = WindowTypes::LOAD_Window;
 string loadedProject;
@@ -36,9 +38,16 @@ vector<string> GetDir(const string& dir) {
  }
 
 void OpenProject(string dir) {
+    if(!exists(dir + "\\project.xml")) {
+        ThrowInternalError("Could not find project.xml file in project directory");
+        return;
+    }
     currentWin = WindowTypes::MAIN_Window;
-    loadedProject = "";
-    result = doc.load_file((dir + "project.xml").c_str(),parse_default | parse_declaration);
+    result = doc.load_file((dir + "\\project.xml").c_str(), parse_default | parse_declaration);
+    string version = doc.child("Project").child("ProjectVersion").child_value();
+    projVersion = StringToVersion(version);
+    loadedProject = doc.child("Project").child("ProjectName").child_value();
+    loadedProject += " v" + version;
 }
 
     bool RectangleClickDetection(Rectangle rect) {
@@ -47,7 +56,6 @@ void OpenProject(string dir) {
         return false;
     }
 int main() {
-    cout << projectRoot.child("ProjectName").child_value()<< endl;
     // Pre Init
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     SetTargetFPS(60);
@@ -55,7 +63,7 @@ int main() {
 
     // Init
     InitWindow(0, 0, "ConsoleX - The Best Console Game Engine");
-    SetWindowIcon(LoadImage("icon.png"));
+    SetWindowIcon(LoadImage("../icon.png"));
 
     // Post Init
     SetExitKey(0);
@@ -67,7 +75,7 @@ int main() {
     float offset = 0;
 
     // Variables Post Init
-   vector<string> projFolderContents =  GetDir(projFolder);
+   vector<string> projFolderContents = GetDir(projFolder);
 
    // This loop removes all the files that are not directories in the project folder array
     for (auto str : projFolderContents) {
@@ -137,7 +145,6 @@ int main() {
                         i += 100;
                     }
 
-
                     EndScissorMode();
                     EndDrawing();
                     break;
@@ -145,6 +152,10 @@ int main() {
                 // Game Engine Window
                 case WindowTypes::MAIN_Window: {
                     SetWindowTitle(("ConsoleX - The Best Console Game Engine | "  + loadedProject).c_str());
+                    BeginDrawing();
+                    ClearBackground(RAYWHITE);
+                    DrawText("Loading Project...", 100, 100, 20, BLACK);
+                    EndDrawing();
                     break;
                 }
                 case WindowTypes::SETTINGS_Window: {
@@ -153,7 +164,7 @@ int main() {
                 }
             }
         }
-    } catch (const std::exception& e) {
+    } catch (const exception& e) {
         ThrowInternalError(e.what());
     }
     CloseWindow();

@@ -12,7 +12,7 @@ void ThrowInternalError (const std::string& error) {
     while(!WindowShouldClose()) {
         BeginDrawing();
             ClearBackground(BLACK);
-            DrawText(("Internal Error | " + error).c_str(), GetScreenWidth() / 2 - MeasureText(("Internal Error | " + error).c_str(), 20) /2.5, GetScreenHeight() / 2 - 20, 20, RED);
+            DrawText(error.c_str(), GetScreenWidth() / 2 - MeasureText(error.c_str(), 20) / 2, GetScreenHeight() / 2.3 , 20, RED);
             EndDrawing();
     }
     CloseWindow();
